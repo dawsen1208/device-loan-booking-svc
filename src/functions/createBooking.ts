@@ -53,8 +53,12 @@ export async function createBooking(
 
         // 3. 默认错误
         return { 
-            status: err.statusCode ?? 409, 
-            jsonBody: { error: msg } 
+            status: err.statusCode ?? 500, 
+            jsonBody: { 
+                error: msg,
+                stack: err.stack,
+                details: err.response?.data || "No external response details"
+            } 
         };
     }
 }
