@@ -29,8 +29,12 @@ export async function returnBooking(
     } catch (err: any) {
         context.log("Step ERROR:", err.message);
         return {
-            status: err.statusCode ?? 409,
-            jsonBody: { error: err.message }
+            status: err.statusCode ?? 500,
+            jsonBody: { 
+                error: err.message,
+                stack: err.stack,
+                details: err.response?.data || "No external response details"
+            }
         };
     }
 }

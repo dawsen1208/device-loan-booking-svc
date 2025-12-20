@@ -40,10 +40,22 @@ export class CosmosBookingRepo {
         return resources[0] || null;
     }
 
+    private pkPath: string | null = null;
+
+    private async getPartitionKeyValue(booking: Booking): Promise<any> {
+        if (!this.pkPath) {
+            const { resource } = await this.container.read();
+            this.pkPath = resource?.partitionKey?.paths?.[0]?.substring(1) || "id";
+        }
+        return (booking as any)[this.pkPath];
+    }
+
     // ✔ 更新 booking（用于修改 status → returned）
     async update(booking: Booking) {
+        const pkValue = await this.getPartitionKeyValue(booking);
+
         const { resource } = await this.container
-            .item(booking.id, booking.id)   // partition key = id（与你之前 create 的结构一致）
+            .item(booking.id, pkValue)
             .replace(booking);
 
         return resource;
